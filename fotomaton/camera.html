@@ -1,0 +1,62 @@
+<link rel="import" href="../bower_components/paper-shadow/paper-shadow.html">
+<polymer-element name="fotomaton-camera">
+  <template>
+    <style>
+#Video {
+  height: 50%;
+}
+    </style>
+    <video id="Video" autoplay></video>
+  </template>
+  <script>
+Polymer('fotomaton-camera', {
+  userMediaPromise: null,
+
+  ready: function () {
+    this.startVideoStream();
+  },
+
+  startVideoStream: function () {
+    this.getUserMedia()
+      .then(this.applyMediaStreamToVideo.bind(this))
+      .catch(this.announceFailure.bind(this));
+  },
+
+  stopVideoStream: function () {
+    this.getUserMedia()
+      .then(function (mediaStream) {
+        mediaStream.stop();
+      });
+
+    this.userMediaPromise = null;
+    this.video.src = null;
+  },
+
+  applyMediaStreamToVideo: function (mediaStream) {
+    this.video.src = window.URL.createObjectURL(mediaStream);
+  },
+
+  announceFailure: function (error) {
+    console.error(error);
+  },
+
+  getUserMedia: function () {
+    if (this.userMediaPromise) {
+      return this.userMediaPromise;
+    }
+
+    return this.userMediaPromise =
+      new Promise(function (resolve, reject) {
+        window.navigator.webkitGetUserMedia({
+          video: true,
+          audio: false
+        }, resolve, reject);
+      });
+  },
+
+  get video () {
+    return this.$.Video;
+  }
+});
+  </script>
+</polymer-element>
